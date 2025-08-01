@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚫 Escape the Ban - Discord Server Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: #ff6b8a;
+            margin: 0;
+            padding: 25px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+            font-size: 18px;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 107, 138, 0.08) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(15, 52, 96, 0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 40% 80%, rgba(26, 26, 46, 0.25) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .game-container {
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff6b8a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 
+                0 0 40px rgba(255, 107, 138, 0.5),
+                inset 0 0 40px rgba(255, 107, 138, 0.08);
+            backdrop-filter: blur(15px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            background: linear-gradient(45deg, #ff6b8a, #0f3460, #ff6b8a);
+            border-radius: 20px;
+            z-index: -1;
+            animation: borderGlow 3s ease-in-out infinite alternate;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            border-bottom: 3px solid #ff6b8a;
+            padding-bottom: 20px;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin: 0 0 15px 0;
+            color: #ffffff;
+            text-shadow: 
+                0 0 15px rgba(255, 107, 138, 0.9),
+                0 0 30px rgba(255, 107, 138, 0.6),
+                0 0 45px rgba(255, 107, 138, 0.3);
+            animation: titlePulse 2s ease-in-out infinite alternate;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 8px 0;
+            font-size: 1.3em;
+            color: #ffabc0;
+            text-shadow: 0 0 10px rgba(255, 171, 192, 0.5);
+        }
+        
+        .status {
+            background: linear-gradient(135deg, rgba(255, 107, 138, 0.2), rgba(255, 107, 138, 0.08));
+            border: 2px solid rgba(255, 107, 138, 0.6);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            font-size: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            box-shadow: inset 0 3px 6px rgba(255, 107, 138, 0.15);
+        }
+        
+        .status div {
+            padding: 10px 15px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            color: #ffffff;
+            font-weight: 500;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        
+        #messages {
+            min-height: 200px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            border: 2px solid rgba(255, 107, 138, 0.3);
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+        
+        #messages::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        #messages::-webkit-scrollbar-track {
+            background: rgba(255, 107, 138, 0.15);
+            border-radius: 6px;
+        }
+        
+        #messages::-webkit-scrollbar-thumb {
+            background: rgba(255, 107, 138, 0.6);
+            border-radius: 6px;
+        }
+        
+        #messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 107, 138, 0.8);
+        }
+        
+        .message {
+            margin: 15px 0;
+            line-height: 1.8;
+            animation: fadeIn 0.6s ease-in;
+            padding: 12px 18px;
+            border-left: 4px solid rgba(255, 107, 138, 0.5);
+            background: rgba(255, 107, 138, 0.08);
+            border-radius: 0 12px 12px 0;
+            font-size: 1.15em;
+            color: #ffffff;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+        }
+        
+        .options {
+            margin: 25px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transform: scaleY(0);
+            transform-origin: top;
+            transition: max-height 0.6s ease-out, opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .options.show {
+            max-height: 1000px; /* large enough */
+            opacity: 1;
+            transform: scaleY(1);
+        }
+        
+        .option-btn {
+            background: linear-gradient(135deg, #ff6b8a, #e55577);
+            color: white;
+            border: none;
+            padding: 20px 25px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1.2em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-align: left;
+            box-shadow: 0 6px 20px rgba(255, 107, 138, 0.4);
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .option-btn:hover {
+            background: linear-gradient(135deg, #ff7b9a, #f55571);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 30px rgba(255, 107, 138, 0.6);
+        }
+        
+        .option-btn:hover::before {
+            left: 100%;
+        }
+        
+        .option-btn:active {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 138, 0.7);
+        }
+        
+        .option-btn:disabled {
+            background: linear-gradient(135deg, #666, #555);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .success {
+            color: #66ff88;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 0 0 15px rgba(102, 255, 136, 0.7);
+        }
+        
+        .failure {
+            color: #ff6b8a;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 0 0 15px rgba(255, 107, 138, 0.7);
+        }
+        
+        .warning {
+            color: #ffcc44;
+            font-weight: bold;
+            font-size: 1.1em;
+            text-shadow: 0 0 15px rgba(255, 204, 68, 0.7);
+        }
+        
+        .inventory {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        input[type="text"] {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(255, 107, 138, 0.6);
+            border-radius: 10px;
+            padding: 15px;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1.1em;
+            width: 300px;
+            margin-right: 15px;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff6b8a;
+            box-shadow: 0 0 20px rgba(255, 107, 138, 0.5);
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        input[type="text"]::placeholder {
+            color: rgba(255, 171, 192, 0.7);
+        }
+        
+        .quiz-container {
+            background: rgba(255, 107, 138, 0.15);
+            border: 3px solid rgba(255, 107, 138, 0.4);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .quiz-container p {
+            font-size: 1.4em;
+            margin-bottom: 20px;
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+        }
+        
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes borderGlow {
+            0% { opacity: 0.8; }
+            100% { opacity: 1; }
+        }
+        
+        @keyframes titlePulse {
+            0% { text-shadow: 0 0 15px rgba(255, 107, 138, 0.9), 0 0 30px rgba(255, 107, 138, 0.6), 0 0 45px rgba(255, 107, 138, 0.3); }
+            100% { text-shadow: 0 0 25px rgba(255, 107, 138, 1), 0 0 40px rgba(255, 107, 138, 0.8), 0 0 60px rgba(255, 107, 138, 0.5); }
+        }
+        
+        .typewriter {
+            overflow: hidden;
+            border-right: 3px solid #ff6b8a;
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: #ff6b8a; }
+        }
+        
+        /* Discord-like styling for certain elements */
+        .discord-message {
+            background: #36393f;
+            border-left: 4px solid #7289da;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+            color: #dcddde;
+        }
+        
+        .ban-message {
+            background: #f04747;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+            box-shadow: 0 4px 15px rgba(240, 71, 71, 0.3);
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            .game-container {
+                padding: 20px;
+                margin: 0;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .status {
+                grid-template-columns: 1fr;
+                font-size: 14px;
+            }
+            
+            .option-btn {
+                padding: 15px 18px;
+                font-size: 1.1em;
+            }
+            
+            input[type="text"] {
+                width: 100%;
+                margin-bottom: 15px;
+                font-size: 1em;
+            }
+            
+                         #messages {
+                 min-height: 180px;
+                 max-height: 240px;
+                 font-size: 1em;
+             }
+        }
+        
+        /* Loading animation */
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(233, 69, 96, 0.3);
+            border-radius: 50%;
+            border-top-color: #e94560;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes expandDown {
+            from {
+                max-height: 0;
+                opacity: 0;
+                transform: scaleY(0);
+            }
+            to {
+                max-height: 1000px;
+                opacity: 1;
+                transform: scaleY(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🚫 ESCAPE THE BAN 🚫</h1>
+        </div>
+        
+        <div id="status" class="status">
+            <div>⏰ Time elapsed: <span id="time">0</span> minutes</div>
+            <div>🚫 Attempts remaining: <span id="attempts">3</span></div>
+        </div>
+        
+        <div id="game-area">
+            <div id="messages"></div>
+            <div id="options" class="options"></div>
+        </div>
+    </div>
+
+    <script>
+        class DiscordBanEscapeGame {
+            constructor() {
+                this.player_name = "Evan";
+                this.cross_byte = "cross_byte";
+                this.current_location = "banned_server";
+                this.inventory = [];
+                this.ban_reason = "inviting Crylo who posted Lois Griffin feet pics";
+                this.escape_attempts = 0;
+                this.max_attempts = 3;
+                this.game_state = {
+                    has_vpn: false,
+                    has_alt_account: false,
+                    has_mod_contact: false,
+                    has_evidence: false,
+                    appeal_sent: false,
+                    time_elapsed: 0,
+                    blocked_by_cross_byte: false,
+                    doxxed: false,
+                    awesome_helped: false,
+                    roger_trolled: false,
+                    passed_techgkn_test: false,
+                    ending_type: null
+                };
+                this.game_over = false;
+                this.waiting_for_input = false;
+                this.scene_completed = false;
+                this.used_options = new Set(); // Track which options have been used
+            }
+            
+            print_slow(text, delay = 20) {
+                return new Promise(resolve => {
+                    const messagesDiv = document.getElementById('messages');
+                    const messageDiv = document.createElement('div');
+                    messageDiv.className = 'message';
+                    messagesDiv.appendChild(messageDiv);
+                    
+                    // Auto-scroll to the new message
+                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                    
+                    let i = 0;
+                    let skipped = false;
+                    
+                    // Space key skip function (desktop only)
+                    const skipHandler = (e) => {
+                        if (e.code === 'Space' && !e.target.matches('input')) {
+                            e.preventDefault();
+                            skipped = true;
+                            messageDiv.textContent = text; // Show full text immediately
+                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                            clearInterval(typewriter);
+                            document.removeEventListener('keydown', skipHandler);
+                            setTimeout(resolve, 100);
+                        }
+                    };
+                    
+                    // Only add space skip on non-mobile devices
+                    if (!('ontouchstart' in window)) {
+                        document.addEventListener('keydown', skipHandler);
+                    }
+                    
+                    const typewriter = setInterval(() => {
+                        if (skipped) return;
+                        
+                        messageDiv.textContent += text.charAt(i);
+                        // Keep scrolling to bottom as text appears
+                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                        i++;
+                        if (i >= text.length) {
+                            clearInterval(typewriter);
+                            document.removeEventListener('keydown', skipHandler);
+                            // Final scroll to ensure everything is visible
+                            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                            setTimeout(resolve, 500);
+                        }
+                    }, delay);
+                });
+            }
+            
+            updateStatus() {
+                document.getElementById('time').textContent = this.game_state.time_elapsed;
+                document.getElementById('attempts').textContent = this.max_attempts - this.escape_attempts;
+            }
+            
+            showOptions(options) {
+                const optionsDiv = document.getElementById('options');
+                optionsDiv.classList.remove('show');
+                optionsDiv.innerHTML = '';
+                
+                options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'option-btn';
+                    button.textContent = option.text;
+                    
+                    // Check if this option has already been used
+                    const optionKey = option.text.split(' ')[0]; // Use first word as key (1., 2., etc)
+                    if (this.used_options.has(optionKey)) {
+                        button.disabled = true;
+                        button.style.opacity = '0.3';
+                        button.style.cursor = 'not-allowed';
+                        button.textContent += ' (Already used)';
+                    } else {
+                        button.onclick = () => {
+                            // Mark this option as used
+                            this.used_options.add(optionKey);
+                            
+                            // Disable all buttons to prevent multiple clicks
+                            const allButtons = optionsDiv.querySelectorAll('.option-btn');
+                            allButtons.forEach(btn => {
+                                btn.disabled = true;
+                                btn.style.opacity = '0.5';
+                            });
+                            option.action();
+                        };
+                    }
+                    optionsDiv.appendChild(button);
+                });
+                // Trigger the expand animation
+                requestAnimationFrame(() => {
+                    optionsDiv.classList.add('show');
+                });
+            }
+            
+            async startGame() {
+                await this.print_slow("You've been banned from your favorite Discord server by cross_byte!");
+                await this.print_slow("The reason? Apparently inviting Crylo who posted Lois Griffin feet pics is against the rules now...");
+                await this.print_slow("The server you loved is now locked away from you.");
+                await this.print_slow("cross_byte's smug avatar seems to be laughing at you.");
+                await this.print_slow("But you're not going down without a fight!");
+                await this.print_slow("You have 3 attempts to escape this ban and get back into the server.");
+                
+                // Start the first scene
+                this.updateStatus();
+                await this.handleLocation();
+            }
+            
+            async handleLocation() {
+                if (this.scene_completed) return;
+                
+                // Check if player has run out of attempts
+                if (this.escape_attempts >= this.max_attempts) {
+                    await this.loseGame();
+                    return;
+                }
+                
+                if (this.current_location === "banned_server") {
+                    await this.bannedServerScene();
+                } else if (this.current_location === "discord_support") {
+                    await this.discordSupportScene();
+                } else if (this.current_location === "vpn_shop") {
+                    await this.vpnShopScene();
+                } else if (this.current_location === "mod_contact") {
+                    await this.modContactScene();
+                } else if (this.current_location === "appeal_process") {
+                    await this.appealProcessScene();
+                } else if (this.current_location === "cross_byte_dm") {
+                    await this.crossByteDmScene();
+                } else if (this.current_location === "awesome_contact") {
+                    await this.awesomeContactScene();
+                } else if (this.current_location === "roger_contact") {
+                    await this.rogerContactScene();
+                } else if (this.current_location === "techgkn_test") {
+                    await this.techgknTestScene();
+                } else if (this.current_location === "elxde_contact") {
+                    await this.elxdeContactScene();
+                }
+            }
+            
+            async bannedServerScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("🚫 You're staring at the 'You have been banned' message...");
+                
+                this.scene_completed = true;
+                this.waiting_for_input = true;
+                
+                this.showOptions([
+                    {
+                        text: "1. DM cross_byte directly",
+                        action: async () => {
+                            await this.print_slow("You decide to DM cross_byte directly.");
+                            this.current_location = "cross_byte_dm";
+                            this.scene_completed = false;
+                            this.waiting_for_input = false;
+                            this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                            this.updateStatus();
+                            await this.handleLocation();
+                        }
+                    },
+                    {
+                        text: "2. Contact awesome",
+                        action: async () => {
+                            await this.print_slow("You reach out to your chaotic friend awesome.");
+                            this.current_location = "awesome_contact";
+                            this.scene_completed = false;
+                            this.waiting_for_input = false;
+                            this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                            this.updateStatus();
+                            await this.handleLocation();
+                        }
+                    },
+                    {
+                        text: "3. Contact roger",
+                        action: async () => {
+                            await this.print_slow("You contact roger for help.");
+                            this.current_location = "roger_contact";
+                            this.scene_completed = false;
+                            this.waiting_for_input = false;
+                            this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                            this.updateStatus();
+                            await this.handleLocation();
+                        }
+                    },
+                    {
+                        text: "4. Contact TechGkN",
+                        action: async () => {
+                            await this.print_slow("You approach TechGkN's Turning Red fan server.");
+                            this.current_location = "techgkn_test";
+                            this.scene_completed = false;
+                            this.waiting_for_input = false;
+                            this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                            this.updateStatus();
+                            await this.handleLocation();
+                        }
+                    },
+                    {
+                        text: "5. Contact elxde",
+                        action: async () => {
+                            await this.print_slow("You take the risky step of contacting elxde.");
+                            this.current_location = "elxde_contact";
+                            this.scene_completed = false;
+                            this.waiting_for_input = false;
+                            this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                            this.updateStatus();
+                            await this.handleLocation();
+                        }
+                    }
+                ]);
+            }
+            
+            async discordSupportScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("📧 You navigate to Discord's support page...");
+                await this.print_slow("The appeal form is long and tedious.");
+                
+                if (!this.game_state.has_evidence) {
+                    await this.print_slow("Without evidence, your appeal seems weak...");
+                    await this.print_slow("Discord support responds: 'Appeal denied. Ban upheld.'");
+                    this.escape_attempts++;
+                    this.current_location = "banned_server";
+                    this.scene_completed = false;
+                    this.waiting_for_input = false;
+                    this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                    this.updateStatus();
+                    await this.handleLocation();
+                    return;
+                }
+                
+                await this.print_slow("With your evidence, the appeal looks much stronger!");
+                await this.print_slow("Discord support responds: 'Appeal under review...'");
+                
+                if (Math.random() < 0.7) {
+                    await this.print_slow("🎉 SUCCESS! Your ban has been overturned!");
+                    await this.print_slow("cross_byte's decision has been overruled by Discord!");
+                    this.current_location = "escaped";
+                    await this.winGame();
+                } else {
+                    await this.print_slow("Unfortunately, the appeal was still denied.");
+                    this.escape_attempts++;
+                    this.current_location = "banned_server";
+                    this.scene_completed = false;
+                    this.waiting_for_input = false;
+                    this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                    this.updateStatus();
+                    await this.handleLocation();
+                }
+            }
+            
+            async vpnShopScene() {
+                if (this.scene_completed) return;
+                
+                if (this.game_state.has_vpn) {
+                    await this.print_slow("🔐 You already have a VPN. Creating alt account...");
+                    if (Math.random() < 0.6) {
+                        await this.print_slow("✅ Alt account created successfully!");
+                        this.game_state.has_alt_account = true;
+                        await this.print_slow("You're back in the server with a new identity!");
+                        this.current_location = "escaped";
+                        await this.winGame();
+                    } else {
+                        await this.print_slow("❌ The server has anti-alt detection. Banned again!");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        await this.handleLocation();
+                    }
+                    return;
+                }
+                
+                await this.print_slow("🛒 You visit a VPN service website...");
+                await this.print_slow("The free VPNs look sketchy, but the paid ones are expensive.");
+                
+                this.scene_completed = true;
+                this.waiting_for_input = true;
+                
+                this.showOptions([
+                    {
+                        text: "1. Free VPN (risky but free)",
+                        action: async () => {
+                            if (Math.random() < 0.3) {
+                                await this.print_slow("✅ Free VPN works! Creating alt account...");
+                                this.game_state.has_vpn = true;
+                                if (Math.random() < 0.5) {
+                                    await this.print_slow("✅ Alt account created! You're back in!");
+                                    this.current_location = "escaped";
+                                    await this.winGame();
+                                } else {
+                                    await this.print_slow("❌ Alt detection caught you again!");
+                                    this.escape_attempts++;
+                                    this.current_location = "banned_server";
+                                    this.scene_completed = false;
+                                    this.waiting_for_input = false;
+                                    this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                                    this.updateStatus();
+                                    await this.handleLocation();
+                                }
+                            } else {
+                                await this.print_slow("❌ Free VPN is detected and blocked!");
+                                this.escape_attempts++;
+                                this.current_location = "banned_server";
+                                this.scene_completed = false;
+                                this.waiting_for_input = false;
+                                this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                                this.updateStatus();
+                                await this.handleLocation();
+                            }
+                        }
+                    },
+                    {
+                        text: "2. Paid VPN (safe but costs money)",
+                        action: async () => {
+                            await this.print_slow("💰 You pay for a premium VPN...");
+                            this.game_state.has_vpn = true;
+                            this.inventory.push("Premium VPN");
+                            if (Math.random() < 0.8) {
+                                await this.print_slow("✅ Premium VPN works perfectly! Alt account created!");
+                                this.current_location = "escaped";
+                                await this.winGame();
+                            } else {
+                                await this.print_slow("❌ Even premium VPN couldn't hide you!");
+                                this.escape_attempts++;
+                                this.current_location = "banned_server";
+                                this.scene_completed = false;
+                                this.waiting_for_input = false;
+                                this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                                this.updateStatus();
+                                await this.handleLocation();
+                            }
+                        }
+                    },
+                    {
+                        text: "3. Try without VPN (very risky)",
+                        action: async () => {
+                            await this.print_slow("🎲 You try to create an alt without VPN...");
+                            if (Math.random() < 0.1) {
+                                await this.print_slow("🎉 MIRACLE! Somehow it worked!");
+                                this.current_location = "escaped";
+                                await this.winGame();
+                            } else {
+                                await this.print_slow("❌ Instantly detected and banned!");
+                                this.escape_attempts++;
+                                this.current_location = "banned_server";
+                                this.scene_completed = false;
+                                this.waiting_for_input = false;
+                                this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                                this.updateStatus();
+                                await this.handleLocation();
+                            }
+                        }
+                    }
+                ]);
+            }
+            
+            async modContactScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("👥 You reach out to other server moderators...");
+                await this.print_slow("Some mods are sympathetic, others are strict like cross_byte.");
+                
+                if (this.game_state.has_evidence) {
+                    await this.print_slow("With evidence in hand, the mods are more receptive...");
+                    if (Math.random() < 0.8) {
+                        await this.print_slow("✅ The mods overrule cross_byte's decision!");
+                        await this.print_slow("You're unbanned and cross_byte looks foolish!");
+                        this.current_location = "escaped";
+                        await this.winGame();
+                    } else {
+                        await this.print_slow("❌ Even with evidence, the mods side with cross_byte.");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        await this.handleLocation();
+                    }
+                } else {
+                    await this.print_slow("Without evidence, the mods are skeptical...");
+                    if (Math.random() < 0.2) {
+                        await this.print_slow("✅ A kind mod believes your story and unbans you!");
+                        this.current_location = "escaped";
+                        await this.winGame();
+                    } else {
+                        await this.print_slow("❌ The mods don't believe you without proof.");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        await this.handleLocation();
+                    }
+                }
+            }
+            
+            async appealProcessScene() {
+                if (this.scene_completed) return;
+                
+                if (!this.game_state.has_evidence) {
+                    await this.print_slow("🔍 You start gathering evidence to prove your innocence...");
+                    await this.print_slow("You search through your message history...");
+                    await this.print_slow("You find screenshots of your conversations...");
+                    await this.print_slow("You collect timestamps and context...");
+                    
+                    if (Math.random() < 0.7) {
+                        await this.print_slow("✅ You found evidence! You weren't spamming at all!");
+                        this.game_state.has_evidence = true;
+                        this.inventory.push("Evidence of innocence");
+                        await this.print_slow("Now you can appeal properly!");
+                        this.current_location = "discord_support";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        await this.handleLocation();
+                    } else {
+                        await this.print_slow("❌ You can't find enough evidence to prove your case.");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        await this.handleLocation();
+                    }
+                } else {
+                    await this.print_slow("📋 You have evidence! Time to appeal...");
+                    this.current_location = "discord_support";
+                    this.scene_completed = false;
+                    this.waiting_for_input = false;
+                    this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                    this.updateStatus();
+                    await this.handleLocation();
+                }
+            }
+            
+            async crossByteDmScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("📱 You DM cross_byte begging to be unbanned...");
+                await this.print_slow("cross_byte responds harshly and blocks you.");
+                this.game_state.blocked_by_cross_byte = true;
+                this.escape_attempts++;
+                await this.print_slow("That avenue is now closed forever.");
+                this.current_location = "banned_server";
+                this.scene_completed = false;
+                this.waiting_for_input = false;
+                this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                this.updateStatus();
+                await this.handleLocation();
+            }
+            
+            async awesomeContactScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow('Awesome: "Hi, nigga!"');
+                if (Math.random() < 0.5) {
+                    await this.print_slow("awesome decides to help! Provides an alt account.");
+                    this.game_state.awesome_helped = true;
+                    this.game_state.has_alt_account = true;
+                    await this.print_slow("You sneak back into the server!");
+                    this.game_state.ending_type = "pyrrhic_victory";
+                    this.current_location = "escaped";
+                    await this.winGame();
+                } else {
+                    await this.print_slow("awesome trolls you and leaks your DMs!");
+                    await this.print_slow("This makes things worse - more bans incoming.");
+                    this.escape_attempts++;
+                    this.current_location = "banned_server";
+                    this.scene_completed = false;
+                    this.waiting_for_input = false;
+                    this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                    this.updateStatus();
+                    await this.handleLocation();
+                }
+            }
+            
+            async rogerContactScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("But roger impersonates you and gets you banned from other servers.");
+                this.game_state.roger_trolled = true;
+                this.escape_attempts++;
+                await this.print_slow("Your situation is now even worse.");
+                this.current_location = "banned_server";
+                this.scene_completed = false;
+                this.waiting_for_input = false;
+                this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                this.updateStatus();
+                await this.handleLocation();
+            }
+            
+            async techgknTestScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("🎥 You join TechGkN's Turning Red fan server...");
+                await this.print_slow("To gain trust, you must prove your knowledge without mentioning red pandas or 'sus'.");
+                
+                const questions = [
+                    { question: "What's the main character's name?", correct: "mei" },
+                    { question: "What band does the group obsess over?", correct: "town" },
+                    { question: "What year is the movie set in?", correct: "2002" }
+                ];
+                
+                this.scene_completed = true;
+                this.waiting_for_input = true;
+                
+                let currentQuestion = 0;
+                
+                const askQuestion = () => {
+                    if (currentQuestion >= questions.length) {
+                        this.print_slow("✅ You passed the test! TechGkN provides evidence for your appeal.");
+                        this.game_state.passed_techgkn_test = true;
+                        this.game_state.has_evidence = true;
+                        this.inventory.push("Turning Red Evidence");
+                        this.current_location = "appeal_process";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        this.handleLocation();
+                        return;
+                    }
+                    
+                    const q = questions[currentQuestion];
+                    const optionsDiv = document.getElementById('options');
+                    optionsDiv.classList.remove('show');
+                    optionsDiv.innerHTML = `
+                        <div class="quiz-container">
+                            <p><strong>${q.question}</strong></p>
+                            <input type="text" id="answer-input" placeholder="Type your answer...">
+                            <button onclick="game.checkTechGknAnswer('${q.correct}', this)" class="option-btn">Submit Answer</button>
+                        </div>
+                    `;
+                    requestAnimationFrame(() => {
+                        optionsDiv.classList.add('show');
+                    });
+                };
+                
+                askQuestion();
+                
+                this.checkTechGknAnswer = (correct, button) => {
+                    // Disable the button to prevent multiple submissions
+                    if (button) {
+                        button.disabled = true;
+                        button.style.opacity = '0.5';
+                    }
+                    
+                    const answer = document.getElementById('answer-input').value.toLowerCase();
+                    if (answer.includes("red panda") || answer.includes("sus")) {
+                        this.print_slow("❌ You mentioned a forbidden topic! Instant ban!");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        this.handleLocation();
+                        return;
+                    }
+                    if (!answer.includes(correct)) {
+                        this.print_slow("❌ Wrong answer! TechGkN doesn't trust you.");
+                        this.escape_attempts++;
+                        this.current_location = "banned_server";
+                        this.scene_completed = false;
+                        this.waiting_for_input = false;
+                        this.game_state.time_elapsed += Math.floor(Math.random() * 10) + 5;
+                        this.updateStatus();
+                        this.handleLocation();
+                        return;
+                    }
+                    currentQuestion++;
+                    askQuestion();
+                };
+            }
+            
+            async elxdeContactScene() {
+                if (this.scene_completed) return;
+                
+                await this.print_slow("☢️ You contact elxde as a last resort...");
+                await this.print_slow("But elxde doxxes you! Game over.");
+                this.game_state.doxxed = true;
+                this.game_state.ending_type = "doxxed";
+                this.current_location = "permanently_banned";
+                await this.loseGame();
+            }
+
+            async winGame() {
+                await this.print_slow("🎉 CONGRATULATIONS! 🎉");
+                if (this.game_state.ending_type === "pyrrhic_victory") {
+                    await this.print_slow("You've been unbanned... for now. But you're on thin ice.");
+                } else if (this.game_state.ending_type === "revenge") {
+                    await this.print_slow("The Antievanist is defeated! cross_byte is demodded.");
+                } else {
+                    await this.print_slow("You've successfully escaped the ban!");
+                }
+                await this.print_slow(`Time taken: ${this.game_state.time_elapsed} minutes`);
+                await this.print_slow("🏆 YOU WIN! 🏆");
+                
+                this.game_over = true;
+                this.scene_completed = true;
+                this.showOptions([
+                    {
+                        text: "Play Again",
+                        action: () => location.reload()
+                    }
+                ]);
+            }
+            
+            async loseGame() {
+                await this.print_slow("💀 GAME OVER 💀");
+                if (this.game_state.doxxed) {
+                    await this.print_slow("You've been doxxed by elxde. The consequences move offline.");
+                } else if (this.game_state.blocked_by_cross_byte) {
+                    await this.print_slow("You've been blocked by cross_byte after all attempts.");
+                } else if (this.game_state.ending_type === "fixation_switch") {
+                    await this.print_slow("You fail but shift your obsession to a new opp like Zepups.");
+                } else {
+                    await this.print_slow("All escape attempts failed. Permanently banned.");
+                }
+                await this.print_slow("😭 YOU LOSE! 😭");
+                
+                this.game_over = true;
+                this.scene_completed = true;
+                this.showOptions([
+                    {
+                        text: "Try Again",
+                        action: () => location.reload()
+                    }
+                ]);
+            }
+        }
+        
+        // Start the game when page loads
+        let game; // Global reference for techgkn test
+        window.onload = function() {
+            game = new DiscordBanEscapeGame();
+            game.startGame();
+        };
+    </script>
+</body>
+</html> 
